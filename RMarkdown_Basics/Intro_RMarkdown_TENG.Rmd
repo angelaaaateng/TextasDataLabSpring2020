@@ -93,7 +93,7 @@ Use `eval = FALSE` to not run the code.
 # This code will appear exactly as shown below. 
 # There is a syntax error, but since the code is not evaluated, 
 # the document knits without problems.
-summary(cars
+summary(cars)
 ```
 
 ## Why doesn't my code work?
