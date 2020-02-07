@@ -31,11 +31,11 @@ library(dplyr)
 # 1.3 Devtools and the quanteda corpus -----------------------
 
 # Install the package "devtools" which is used to install packages directly from Github
-# install.packages("devtools")
-#library("devtools")
+install.packages("devtools")
+library("devtools")
 
 # Use devtools to install some sample data
-#devtools::install_github("quanteda/quanteda.corpora")
+devtools::install_github("quanteda/quanteda.corpora")
 
 # Load it into our environment
 library(quanteda.corpora)
@@ -53,7 +53,7 @@ packageVersion("quanteda")
 
 # - Check the CRAN archive
 # use the install_version function, e.g.:
-# devtools::install_version("quanteda", version = "0.99.12", repos = "http://cran.us.r-project.org")
+devtools::install_version("quanteda", version = "0.99.12", repos = "http://cran.us.r-project.org")
 
 # If you want the latest dev version of quanteda, it's on GitHub, but we will use the latest version from CRAN for stability/sanity reasons
 # devtools::install_github("quanteda/quanteda") 
@@ -76,10 +76,13 @@ packageVersion("quanteda")
 
 # other popular text package with similar features: tm
 
+
 # 1.1 load the State of the Union (SOTU) corpus ---------------------
 sotu <- data_corpus_sotu
+# sotu
 
-# a corpus consists of: (1) documents: text + doc level data (2) corpus metadata (3) extras (settings)
+head(sotu)
+# a corpus consists ofs: (1) documents: text + doc level data (2) corpus metadata (3) extras (settings)
 head(docvars(sotu))  # document-level variables
 metacorpus(sotu)  # corpus-level variables
 
