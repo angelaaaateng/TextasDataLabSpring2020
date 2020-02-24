@@ -24,10 +24,12 @@ knitr::opts_chunk$set(echo = TRUE)
 <!-- for bigger projects: use a dependency manager (packrat) for projects (see below) -->
 
 
-# 0 SETTING UP
+### 0 SETTING UP
 
-
-```{r echo=TRUE}
+Set up libraries, load packages, set working directory. 
+```{r include = FALSE}
+# ```{r echo=FALSE}
+# we don't really want to print this whole thing, since we are just setting up and loading packages/libraries etc
 
 # 0.1 Clearing environment
 rm(list = ls())
@@ -121,22 +123,23 @@ packageVersion("quanteda")
 
 ```
 
-#-----------------------------
+
 ### QUESTION 1
 First we'll use the data from the U.S. inaugural addresses available in quanteda. Let's first
 look at the inaugural addresses given by Richard Nixon in 1969 and 1973.
-#-----------------------------
+
 
 ```{r echo=TRUE}
 # Load the presidential inaugural address texts (https://rdrr.io/cran/quanteda/man/data_corpus_inaugural.html)
 inaug <- data_corpus_inaugural
-data_corpus_inaugural
+# data_corpus_inaugural
 
 summary(data_corpus_inaugural)
-head(docvars(data_corpus_inaugural), 10)
+# head(docvars(data_corpus_inaugural), 10)
 # do basic data exploration
-head(inaug)
+# head(inaug)
 # a corpus consists ofs: (1) documents: text + doc level data (2) corpus metadata (3) extras (settings)
+
 head(docvars(inaug))  # document-level variables
 metacorpus(inaug)  # corpus-level variables
 
@@ -154,10 +157,14 @@ token_plot <- ggplot(data = corpusinfo, aes(x = Year, y = Tokens, group = 1)) + 
 token_plot
 
 # subset corpus to include only Nixon ---------------------
-summary(corpus_subset(inaug, President == "Nixon"))
+# summary(corpus_subset(inaug, President == "Nixon"))
 nixon_inaug <- corpus_subset(inaug, President == "Nixon")
-head(docvars(nixon_inaug))
+# head(docvars(nixon_inaug))
+```
 
+#### QUESTION 1 A
+
+```{r echo=TRUE}
 # (a) Calculate the TTR of each of these speeches and report your findings.
 
 # We can apply Heap's Law to better understand: 
@@ -176,12 +183,12 @@ head(docvars(nixon_inaug))
 
 # 2.1 Example using data from the corpus of inaugural speeches
 tokens <- tokens(nixon_inaug, remove_punct = TRUE) 
-tokens
+# tokens
 num_tokens <- sum(lengths(tokens))
 num_tokens
 
 inaug_nixon_dfm <- dfm(nixon_inaug)
-inaug_nixon_dfm
+# inaug_nixon_dfm
 
 M <- nfeat(inaug_nixon_dfm)  # number of features = number of types
 M
@@ -217,27 +224,27 @@ M
 # this is the ttr for BOTH speeches. now, let's calculate the TTR of each speech. 
 
 # keep only the text of the the 2018 SOTU
-(nixon_inaug)[1]
-texts(nixon_inaug)[1]
+# (nixon_inaug)[1]
+# texts(nixon_inaug)[1]
 nixon_1969_text <- texts(nixon_inaug)[1]
-nixon_1969_text
+# nixon_1969_text
 summary(corpus_subset(inaug, President == "Nixon", Year == "1969"))
 nixon_1973_text <- texts(nixon_inaug)[2]
-nixon_1973_text
+# nixon_1973_text
 # summary(corpus_subset(inaug, President == "Nixon",  Year == 1969))
 
 
 # NIXON 1969
 
 tokens_1969 <- tokens(nixon_1969_text, remove_punct = TRUE) 
-tokens_1969
+# tokens_1969
 
 num_tokens_1969 <- sum(lengths(tokens_1969))
-num_tokens_1969
+# num_tokens_1969
 # ntoken(num_tokens_1969)
 
 inaug_nixon_dfm_1969 <- dfm(nixon_1969_text)
-inaug_nixon_dfm_1969
+# inaug_nixon_dfm_1969
 
 M <- nfeat(inaug_nixon_dfm_1969)  # number of features = number of types
 M
@@ -253,39 +260,139 @@ k * (num_tokens_1969)^b
 M
 ```
 
-# QUESTION FOR LESLIE: Are we supposed to compute the TTR per corpus, or for the two corpora? 
-# What M should we use? Should we use the same M for both, as in the total number of features for BOTH corpora?
+QUESTION FOR LESLIE: Are we supposed to compute the TTR per corpus, or for the two corpora? 
+What M should we use? Should we use the same M for both, as in the total number of features for BOTH corpora?
+Are we just calculating for the k values? 
 
-
+#### QUESTION 1 B
+```{r echo=TRUE}
 # (b) Create a document feature matrix of the two speeches, with no pre-processing other than
 # to remove the punctuation{be sure to check the options on \dfm" in R as appropriate.
 #  Calculate the cosine similarity between the two documents with quanteda. Report your
-#  ndings.
+#  findings.
+
+tokens <- tokens(nixon_inaug, remove_punct = TRUE) 
+# tokens
+num_tokens <- sum(lengths(tokens))
+# num_tokens
+
+inaug_nixon_dfm <- dfm(nixon_inaug)
+inaug_nixon_dfm
+
+M <- nfeat(inaug_nixon_dfm)  # number of features = number of types
+# M
+
+# inspect the first few features
+inaug_nixon_dfm[, 1:10]  # 10% sparse
+
+# how many rows does this dfm have? 
+dim(inaug_nixon_dfm)
+
+# top features in dfm
+topfeatures(inaug_nixon_dfm)
+
+# Are all of these features relevant?
+# Words?
+# Punctuation (maybe!!! --> think what the goal is. Can theory help?)
+
+?dfm  
+
+# remove punctuation
+
+# NOTE: lowercase argument is by default TRUE
+# punctuation
+# note that this is for 2 documents, 1969 and 1973
+inaug_nixon_dfm <- dfm(nixon_inaug , remove_punct = TRUE)
+inaug_nixon_dfm[, 1:20]
+
+# calculate cosine similarity
+
+# 5.1 Cosine similarity--take the dot product of two vectors
+# cos = x*y/|x||y|
+calculate_cosine_similarity <- function(vec1, vec2) { 
+  nominator <- vec1 %*% vec2  # %*% specifies dot product rather than entry by entry multiplication (we could also do: sum(x * y))
+  denominator <- sqrt(vec1 %*% vec1)*sqrt(vec2 %*% vec2)
+  return(nominator/denominator)
+}
+
+
+
+# Let's do it with texts
+nixon_1969_text <- texts(nixon_inaug)[1]
+nixon_1973_text <- texts(nixon_inaug)[2]
+# obama_text <- texts(corpus_subset(data_corpus_inaugural, President == "Obama"))
+# lincoln_text <- texts(corpus_subset(data_corpus_inaugural, President == "Lincoln"))
+
+# Make a dfm of these two
+nixon_all_dfm <- dfm(c(nixon_1969_text, nixon_1973_text), remove = stopwords("english"), stem = TRUE)
+
+# Calculate similarity
+similarity_nixon_1969_1973_with_preprocessing <- textstat_simil(nixon_all_dfm, margin = "documents", method = "cosine")
+as.matrix(similarity_nixon_1969_1973_with_preprocessing)
 
 ```
 
+Question for leslie: How do I know if I'm on the right track?
+
+### QUESTION 2
+Consider different preprocessing choices you could make. For each of the following parts of
+this question, you have three tasks: (i) make a theoretical argument for how it should affect
+the TTR of each document and the similarity of the two documents (ii) re-do question (1a)
+with the preprocessing option indicated and (iii) redo question (1b) with the preprocessing
+option indicated.
+
+To be clear, you must repeat tasks (i-iii) for each pre-processing option below. You should
+remove punctuation in each step.
+(a) Stemming the words?
+(b) Removing stop words?
+(c) Converting all words to lowercase?
+(d) Does tf-idf weighting make sense here? Explain why or why not.
 
 
 
 
-#-----------------------------
-# QUESTION 2
-#-----------------------------
+### QUESTION 3
+Take the following two headlines:
 
+"Trump Says He's `Not Happy' With Border Deal, but Doesn't Say if He Will Sign It."
 
+"Trump `not happy' with border deal, weighing options for building wall."
 
+(a) Calculate the Euclidean distance between these sentences by hand--that is, you can use base R, but you can't use distance functions from quanteda or similar.
+You are allowed to use quanteda to tokenize or create a DFM. Use whatever
+pre-processing of the text you want, but justify your choice. Report your findings.
 
-#-----------------------------
-# QUESTION 3
-#-----------------------------
+(b) Calculate the Manhattan distance between these sentences by hand. Report your findings.
 
+(c) Calculate the cosine similarity between these sentences by hand. Report your findings.
 
+### QUESTION 4
+One of the earliest and most famous applications of statistical textual analysis was to deter-mine the authorship of texts. You now get to do the same! You will be using the stylest package. To get the texts for this exercise you will need the gutenbergr package.
 
-#-----------------------------
-# QUESTION 4
-#-----------------------------
+(a) First you will need to get the data from Project Gutenberg using their gutenbergr
+package. Download the first four novels for each of the following authors:
+- Austen, Jane (Persuasion, Northanger Abbey, Mansfield Park, and Emma),
+- Dickens, Charles (A Christmas Carol in Prose; Being a Ghost Story of Christmas,
+A Tale of Two Cities, The Mystery of Edwin Drood, and The Pickwick Papers),
+- Alcott, Louisa May (Flower Fables, Little Women, Eight Cousins, and Jack and
+Jill ),
+- Bronte, Charlotte (The Professor, Jane Eyre: An Autobiography, Villette, and
+Shirley).
 
+From each of these novels extract a short excerpt (e.g. 500 lines of text).
 
+(b) Next you will need to organize the data as required by the package. Create a table (i.e. a dataframe) with one column for the text excerpts and one column identifying the author of each excerpt (although not required to t the model, also create a column for the title of the novel which the excerpt belongs to). Print the str() of your table.
+
+(c) Now use the stylest select vocab function to select the terms you will include in your model. Note, this function allows you to include some pre-processing options. Justify any pre-processing choices you make. What percentile (of term frequency) has the best prediction rate? Also report the mean rate of incorrectly predicted speakers of held-out texts.
+
+(d) Use your optimal percentile from above to subset the terms to be included in your model (this requires you use the stylest terms function). Now go ahead and t the model using stylest fit. The output of this function includes information on the rate at which each author uses each term (the value is labeled rate). Report the top 5 terms (in terms of usage rate) for each author. Do these terms make sense?
+
+(e) Choose any two authors, take the ratio of their rate vectors (make sure dimensions are in the same order) and arrange the resulting vector from largest to smallest values. What are the top 5 terms according to this ratio? How would you interpret this ordering?
+
+(f) Load the mystery excerpt provided. According to your tted model, who is the most likely author?
+
+(g) Use textstat collocation to inspect 2-grams with min count = 5 from your DFM
+of all 16 labeled novels. Report the 10 collocations with the largest  value. Report the 10 collocations with the largest count. Discuss which set of n-grams is likely to be multi-word expressions.
 
 
 #-----------------------------
@@ -325,10 +432,10 @@ M
 
 
 
-#-----------------------------
-# * FINISHING UP
-#-----------------------------
 
+### * FINISHING UP
+
+```{r echo=TRUE}
 # *.1 Save workspace after running it -- all objects, functions, etc  (e.g. if you have run something computationally intensive and want to save the object for later use)
 # Similar to pickle() in Python
 
@@ -340,13 +447,5 @@ rm(list = ls())
 
 load("workspace_hw1.RData")
 
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
