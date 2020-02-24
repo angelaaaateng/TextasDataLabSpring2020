@@ -162,19 +162,30 @@ nixon_inaug <- corpus_subset(inaug, President == "Nixon")
 # head(docvars(nixon_inaug))
 ```
 
-The plot above shows a quick visualization of the number of tokens that Nixon used through the years. 
-
 #### QUESTION 1 A
-(a) Calculate the TTR of each of these speeches and report your findings.
 
 ```{r echo=TRUE}
+# (a) Calculate the TTR of each of these speeches and report your findings.
 
+# We can apply Heap's Law to better understand: 
+# Token-type relationship in corpus
+# How might pre-processing affect this relationship? 
+# Think about reducing the dimensionality of the problem.
+
+#     M = kT^b
+
+# M = vocab size (num of types)
+# T = number of tokens
+
+# k, b are constants
+# 30 <= k <= 100
+# 0.4 <= b <= 0.6
 
 # 2.1 Example using data from the corpus of inaugural speeches
 tokens <- tokens(nixon_inaug, remove_punct = TRUE) 
 # tokens
 num_tokens <- sum(lengths(tokens))
-# num_tokens
+num_tokens
 
 inaug_nixon_dfm <- dfm(nixon_inaug)
 # inaug_nixon_dfm
@@ -200,7 +211,10 @@ nixon_inaug_df  <- nixon_inaug_df %>% mutate(TTR = num_types / num_tokens)
 head(nixon_inaug_df)
 # nixon_inaug_df
 
-# 3.2 Mean per-document TTR scores by year, president
+# Would you expect the budgets to become more or less diverse over time?
+
+# 3.2 Mean per-document TTR scores by year, party
+
 TTR_by_year_president <- nixon_inaug_df %>% group_by(year, president) %>% summarise(mean_ttr = mean(TTR, na.rm = TRUE))
   
 View(TTR_by_year_president)
@@ -208,36 +222,113 @@ View(TTR_by_year_president)
 # select only nixon 
 nixon_ttr <- TTR_by_year_president[which (TTR_by_year_president$president=='Nixon'), ]
 nixon_ttr 
-```
-
-The Text-to-Token Ratio of Nixon's 1969 speech is 0.298, while the Text-to-Token Ratio of his 1973 speech is 0.346. 
-In particular, the formula we used to compute for TTR is as follows: 
-
-TTR = Total Types/ Total Tokens 
- 
-We can see that the TTR increased from 1969 to 1973. 
-
-#### QUESTION 1 B
-
-(b) Create a document feature matrix of the two speeches, with no pre-processing other than
-to remove the punctuation{be sure to check the options on \dfm" in R as appropriate.
-Calculate the cosine similarity between the two documents with quanteda. Report your findings.
-```{r echo=TRUE}
-
-# create a document frequency matrix 
-inaug_nixon_dfm <- dfm(nixon_inaug)
 
 # M <- nfeat(inaug_nixon_dfm)  # number of features = number of types
+# M
+# 
+# # Let's check using parameter values from MRS Ch. 5 for a corpus with more than 100,000 tokens
+# 
+# # k <- 54
+# k <- 15.832 # based on calculations that assume M = 992, T = 3926, b = 0.5
+# # b <- 0.49
+# b <- 0.5
+# 
+# k * (num_tokens)^b
+# 
+# M
+# 
+# # this is close! :-) good job! 
+# 
+# # Let's think about why (what types of texts are these?)
+# 
+# # New parameters
+# 
+# k <- 16
+# b <- 0.455
+# 
+# k * (num_tokens)^b
+# 
+# M
+# 
+# # gets further 
+# 
+# # You can solve mathematically for k and b or fit a model to find k and b -- relationship between log(collection size) and log(vocab size) is linear
+# 
+# # this is the ttr for BOTH speeches. now, let's calculate the TTR of each speech. 
+# 
+# # keep only the text of the the 2018 SOTU
+# # (nixon_inaug)[1]
+# # texts(nixon_inaug)[1]
+# nixon_1969_text <- texts(nixon_inaug)[1]
+# # nixon_1969_text
+# summary(corpus_subset(inaug, President == "Nixon", Year == "1969"))
+# nixon_1973_text <- texts(nixon_inaug)[2]
+# # nixon_1973_text
+# # summary(corpus_subset(inaug, President == "Nixon",  Year == 1969))
+# 
+# 
+# # NIXON 1969
+# 
+# tokens_1969 <- tokens(nixon_1969_text, remove_punct = TRUE) 
+# # tokens_1969
+# 
+# num_tokens_1969 <- sum(lengths(tokens_1969))
+# # num_tokens_1969
+# # ntoken(num_tokens_1969)
+# 
+# inaug_nixon_dfm_1969 <- dfm(nixon_1969_text)
+# # inaug_nixon_dfm_1969
+# 
+# M <- nfeat(inaug_nixon_dfm_1969)  # number of features = number of types
+# M
+# # M = 714 for nixon 1969
+# 
+# # k <- 54
+# k <- 15.492 # based on calculations that assume M = 714, T = 2124, b = 0.5
+# # b <- 0.49
+# b <- 0.5
+# 
+# k * (num_tokens_1969)^b
+# 
+# M
+```
+
+QUESTION FOR LESLIE: Are we supposed to compute the TTR per corpus, or for the two corpora? 
+What M should we use? Should we use the same M for both, as in the total number of features for BOTH corpora?
+Are we just calculating for the k values? 
+
+#### QUESTION 1 B
+```{r echo=TRUE}
+# (b) Create a document feature matrix of the two speeches, with no pre-processing other than
+# to remove the punctuation{be sure to check the options on \dfm" in R as appropriate.
+#  Calculate the cosine similarity between the two documents with quanteda. Report your
+#  findings.
+
+tokens <- tokens(nixon_inaug, remove_punct = TRUE) 
+# tokens
+num_tokens <- sum(lengths(tokens))
+# num_tokens
+
+inaug_nixon_dfm <- dfm(nixon_inaug)
+inaug_nixon_dfm
+
+M <- nfeat(inaug_nixon_dfm)  # number of features = number of types
 # M
 
 # inspect the first few features
 inaug_nixon_dfm[, 1:10]  # 10% sparse
 
-# Print out dimensions of dfm and see how many rows are present 
+# how many rows does this dfm have? 
 dim(inaug_nixon_dfm)
 
-# top features in dfm without removing punctuation
+# top features in dfm
 topfeatures(inaug_nixon_dfm)
+
+# Are all of these features relevant?
+# Words?
+# Punctuation (maybe!!! --> think what the goal is. Can theory help?)
+
+?dfm  
 
 # remove punctuation
 
@@ -246,13 +337,7 @@ topfeatures(inaug_nixon_dfm)
 # note that this is for 2 documents, 1969 and 1973
 inaug_nixon_dfm <- dfm(nixon_inaug , remove_punct = TRUE)
 inaug_nixon_dfm[, 1:20]
-```
 
-The document feature matrix is shown above, the first one sshpoing the top 10 features when punctuation isn't removed, and the second showing the top 20 features when the punctuation is removed.
-
-Next, we'll calculate cosine similarity using these results. 
-
-```{r echo = TRUE}
 # calculate cosine similarity
 
 # 5.1 Cosine similarity--take the dot product of two vectors
@@ -263,11 +348,15 @@ calculate_cosine_similarity <- function(vec1, vec2) {
   return(nominator/denominator)
 }
 
-# Select texts from each year only.
+
+
+# Let's do it with texts
 nixon_1969_text <- texts(nixon_inaug)[1]
 nixon_1973_text <- texts(nixon_inaug)[2]
+# obama_text <- texts(corpus_subset(data_corpus_inaugural, President == "Obama"))
+# lincoln_text <- texts(corpus_subset(data_corpus_inaugural, President == "Lincoln"))
 
-# Make a dfm of these two text documents
+# Make a dfm of these two
 nixon_all_dfm <- dfm(c(nixon_1969_text, nixon_1973_text), remove = stopwords("english"), stem = TRUE)
 
 # Calculate similarity
@@ -276,14 +365,14 @@ as.matrix(similarity_nixon_1969_1973_with_preprocessing)
 
 ```
 
-The cosine similarity is shown above, with 0.914, which means that the documents are very similar. This intuitvely makes sense because they were written by the same author (Nixon). 
+Question for leslie: How do I know if I'm on the right track?
 
 ### QUESTION 2
 Consider different preprocessing choices you could make. For each of the following parts of
-this question, you have three tasks: 
-(i) make a theoretical argument for how it should affect the TTR of each document and the similarity of the two documents 
-(ii) re-do question (1a) with the preprocessing option indicated and 
-(iii) redo question (1b) with the preprocessing option indicated.
+this question, you have three tasks: (i) make a theoretical argument for how it should affect
+the TTR of each document and the similarity of the two documents (ii) re-do question (1a)
+with the preprocessing option indicated and (iii) redo question (1b) with the preprocessing
+option indicated.
 
 To be clear, you must repeat tasks (i-iii) for each pre-processing option below. You should
 remove punctuation in each step.
@@ -292,7 +381,7 @@ remove punctuation in each step.
 (c) Converting all words to lowercase?
 (d) Does tf-idf weighting make sense here? Explain why or why not.
 
-```
+
 
 
 ### QUESTION 3

@@ -510,130 +510,141 @@ token_plot</code></pre>
 # summary(corpus_subset(inaug, President == &quot;Nixon&quot;))
 nixon_inaug &lt;- corpus_subset(inaug, President == &quot;Nixon&quot;)
 # head(docvars(nixon_inaug))</code></pre>
+<p>The plot above shows a quick visualization of the number of tokens that Nixon used through the years.</p>
 <div id="question-1-a" class="section level4">
 <h4>QUESTION 1 A</h4>
-<pre class="r"><code># (a) Calculate the TTR of each of these speeches and report your findings.
-
-# We can apply Heap&#39;s Law to better understand: 
-# Token-type relationship in corpus
-# How might pre-processing affect this relationship? 
-# Think about reducing the dimensionality of the problem.
-
-#     M = kT^b
-
-# M = vocab size (num of types)
-# T = number of tokens
-
-# k, b are constants
-# 30 &lt;= k &lt;= 100
-# 0.4 &lt;= b &lt;= 0.6
-
-# 2.1 Example using data from the corpus of inaugural speeches
-tokens &lt;- tokens(nixon_inaug, remove_punct = TRUE) 
-# tokens
-num_tokens &lt;- sum(lengths(tokens))
-num_tokens</code></pre>
-<pre><code>## [1] 3926</code></pre>
-<pre class="r"><code>inaug_nixon_dfm &lt;- dfm(nixon_inaug)
-# inaug_nixon_dfm
-
-M &lt;- nfeat(inaug_nixon_dfm)  # number of features = number of types
-M</code></pre>
-<pre><code>## [1] 992</code></pre>
-<pre class="r"><code># Let&#39;s check using parameter values from MRS Ch. 5 for a corpus with more than 100,000 tokens
-
-# k &lt;- 54
-k &lt;- 15.832 # based on calculations that assume M = 992, T = 3926, b = 0.5
-# b &lt;- 0.49
-b &lt;- 0.5
-
-k * (num_tokens)^b</code></pre>
-<pre><code>## [1] 991.9983</code></pre>
-<pre class="r"><code>M</code></pre>
-<pre><code>## [1] 992</code></pre>
-<pre class="r"><code># this is close! :-) good job! 
-
-# Let&#39;s think about why (what types of texts are these?)
-
-# New parameters
-
-k &lt;- 16
-b &lt;- 0.455
-
-k * (num_tokens)^b</code></pre>
-<pre><code>## [1] 690.8239</code></pre>
-<pre class="r"><code>M</code></pre>
-<pre><code>## [1] 992</code></pre>
-<pre class="r"><code># gets further 
-
-# You can solve mathematically for k and b or fit a model to find k and b -- relationship between log(collection size) and log(vocab size) is linear
-
-# this is the ttr for BOTH speeches. now, let&#39;s calculate the TTR of each speech. 
-
-# keep only the text of the the 2018 SOTU
-# (nixon_inaug)[1]
-# texts(nixon_inaug)[1]
-nixon_1969_text &lt;- texts(nixon_inaug)[1]
-# nixon_1969_text
-summary(corpus_subset(inaug, President == &quot;Nixon&quot;, Year == &quot;1969&quot;))</code></pre>
-<pre><code>## Corpus consisting of 2 documents:
-## 
-##        Text Types Tokens Sentences
-##  1969-Nixon   743   2437       103
-##  1973-Nixon   544   2012        68
-## 
-## Source: Gerhard Peters and John T. Woolley. The American Presidency Project.
-## Created: Tue Jun 13 14:51:47 2017
-## Notes: http://www.presidency.ucsb.edu/inaugurals.php</code></pre>
-<pre class="r"><code>nixon_1973_text &lt;- texts(nixon_inaug)[2]
-# nixon_1973_text
-# summary(corpus_subset(inaug, President == &quot;Nixon&quot;,  Year == 1969))
-
-
-# NIXON 1969
-
-tokens_1969 &lt;- tokens(nixon_1969_text, remove_punct = TRUE) 
-# tokens_1969
-
-num_tokens_1969 &lt;- sum(lengths(tokens_1969))
-# num_tokens_1969
-# ntoken(num_tokens_1969)
-
-inaug_nixon_dfm_1969 &lt;- dfm(nixon_1969_text)
-# inaug_nixon_dfm_1969
-
-M &lt;- nfeat(inaug_nixon_dfm_1969)  # number of features = number of types
-M</code></pre>
-<pre><code>## [1] 714</code></pre>
-<pre class="r"><code># M = 714 for nixon 1969
-
-# k &lt;- 54
-k &lt;- 15.492 # based on calculations that assume M = 714, T = 2124, b = 0.5
-# b &lt;- 0.49
-b &lt;- 0.5
-
-k * (num_tokens_1969)^b</code></pre>
-<pre><code>## [1] 713.9779</code></pre>
-<pre class="r"><code>M</code></pre>
-<pre><code>## [1] 714</code></pre>
-<p>QUESTION FOR LESLIE: Are we supposed to compute the TTR per corpus, or for the two corpora? What M should we use? Should we use the same M for both, as in the total number of features for BOTH corpora? Are we just calculating for the k values?</p>
-</div>
-<div id="question-1-b" class="section level4">
-<h4>QUESTION 1 B</h4>
-<pre class="r"><code># (b) Create a document feature matrix of the two speeches, with no pre-processing other than
-# to remove the punctuation{be sure to check the options on \dfm&quot; in R as appropriate.
-#  Calculate the cosine similarity between the two documents with quanteda. Report your
-#  findings.
-
+<ol style="list-style-type: lower-alpha">
+<li>Calculate the TTR of each of these speeches and report your findings.</li>
+</ol>
+<pre class="r"><code># 2.1 Example using data from the corpus of inaugural speeches
 tokens &lt;- tokens(nixon_inaug, remove_punct = TRUE) 
 # tokens
 num_tokens &lt;- sum(lengths(tokens))
 # num_tokens
 
 inaug_nixon_dfm &lt;- dfm(nixon_inaug)
-inaug_nixon_dfm</code></pre>
-<pre><code>## Document-feature matrix of: 2 documents, 992 features (38.1% sparse).</code></pre>
-<pre class="r"><code>M &lt;- nfeat(inaug_nixon_dfm)  # number of features = number of types
+# inaug_nixon_dfm
+
+# TOKEN TYPE RATTIO = TOTAL TYPES / TOTAL TOKENS 
+# 3.1 Type Token Ratio 
+
+# Num tokens per document
+num_tokens &lt;- lengths(tokens)
+num_tokens </code></pre>
+<pre><code>## 1969-Nixon 1973-Nixon 
+##       2124       1802</code></pre>
+<pre class="r"><code>num_types &lt;- ntype(tokens)
+num_types</code></pre>
+<pre><code>## 1969-Nixon 1973-Nixon 
+##        737        537</code></pre>
+<pre class="r"><code>nixon_inaug_df &lt;- data.frame(&quot;num_tokens&quot; = num_tokens, 
+                              &quot;num_types&quot; = num_types,
+                              &quot;year&quot; = data_corpus_inaugural$document$Year, 
+                              &quot;president&quot; =data_corpus_inaugural$document$President)</code></pre>
+<pre><code>## Warning in data.frame(num_tokens = num_tokens, num_types = num_types, year
+## = data_corpus_inaugural$document$Year, : row names were found from a short
+## variable and have been discarded</code></pre>
+<pre class="r"><code>nixon_inaug_df </code></pre>
+<pre><code>##    num_tokens num_types year  president
+## 1        2124       737 1789 Washington
+## 2        1802       537 1793 Washington
+## 3        2124       737 1797      Adams
+## 4        1802       537 1801  Jefferson
+## 5        2124       737 1805  Jefferson
+## 6        1802       537 1809    Madison
+## 7        2124       737 1813    Madison
+## 8        1802       537 1817     Monroe
+## 9        2124       737 1821     Monroe
+## 10       1802       537 1825      Adams
+## 11       2124       737 1829    Jackson
+## 12       1802       537 1833    Jackson
+## 13       2124       737 1837  Van Buren
+## 14       1802       537 1841   Harrison
+## 15       2124       737 1845       Polk
+## 16       1802       537 1849     Taylor
+## 17       2124       737 1853     Pierce
+## 18       1802       537 1857   Buchanan
+## 19       2124       737 1861    Lincoln
+## 20       1802       537 1865    Lincoln
+## 21       2124       737 1869      Grant
+## 22       1802       537 1873      Grant
+## 23       2124       737 1877      Hayes
+## 24       1802       537 1881   Garfield
+## 25       2124       737 1885  Cleveland
+## 26       1802       537 1889   Harrison
+## 27       2124       737 1893  Cleveland
+## 28       1802       537 1897   McKinley
+## 29       2124       737 1901   McKinley
+## 30       1802       537 1905  Roosevelt
+## 31       2124       737 1909       Taft
+## 32       1802       537 1913     Wilson
+## 33       2124       737 1917     Wilson
+## 34       1802       537 1921    Harding
+## 35       2124       737 1925   Coolidge
+## 36       1802       537 1929     Hoover
+## 37       2124       737 1933  Roosevelt
+## 38       1802       537 1937  Roosevelt
+## 39       2124       737 1941  Roosevelt
+## 40       1802       537 1945  Roosevelt
+## 41       2124       737 1949     Truman
+## 42       1802       537 1953 Eisenhower
+## 43       2124       737 1957 Eisenhower
+## 44       1802       537 1961    Kennedy
+## 45       2124       737 1965    Johnson
+## 46       1802       537 1969      Nixon
+## 47       2124       737 1973      Nixon
+## 48       1802       537 1977     Carter
+## 49       2124       737 1981     Reagan
+## 50       1802       537 1985     Reagan
+## 51       2124       737 1989       Bush
+## 52       1802       537 1993    Clinton
+## 53       2124       737 1997    Clinton
+## 54       1802       537 2001       Bush
+## 55       2124       737 2005       Bush
+## 56       1802       537 2009      Obama
+## 57       2124       737 2013      Obama
+## 58       1802       537 2017      Trump</code></pre>
+<pre class="r"><code>nixon_inaug_df  &lt;- nixon_inaug_df %&gt;% mutate(TTR = num_types / num_tokens)
+
+head(nixon_inaug_df)</code></pre>
+<pre><code>##   num_tokens num_types year  president       TTR
+## 1       2124       737 1789 Washington 0.3469868
+## 2       1802       537 1793 Washington 0.2980022
+## 3       2124       737 1797      Adams 0.3469868
+## 4       1802       537 1801  Jefferson 0.2980022
+## 5       2124       737 1805  Jefferson 0.3469868
+## 6       1802       537 1809    Madison 0.2980022</code></pre>
+<pre class="r"><code># nixon_inaug_df
+
+# 3.2 Mean per-document TTR scores by year, president
+TTR_by_year_president &lt;- nixon_inaug_df %&gt;% group_by(year, president) %&gt;% summarise(mean_ttr = mean(TTR, na.rm = TRUE))
+  
+View(TTR_by_year_president)</code></pre>
+<pre><code>## Warning in system2(&quot;/usr/bin/otool&quot;, c(&quot;-L&quot;, shQuote(DSO)), stdout = TRUE):
+## running command &#39;&#39;/usr/bin/otool&#39; -L &#39;/Library/Frameworks/R.framework/
+## Resources/modules/R_de.so&#39;&#39; had status 1</code></pre>
+<pre class="r"><code># select only nixon 
+nixon_ttr &lt;- TTR_by_year_president[which (TTR_by_year_president$president==&#39;Nixon&#39;), ]
+nixon_ttr </code></pre>
+<pre><code>## # A tibble: 2 x 3
+## # Groups:   year [2]
+##    year president mean_ttr
+##   &lt;dbl&gt; &lt;fct&gt;        &lt;dbl&gt;
+## 1  1969 Nixon        0.298
+## 2  1973 Nixon        0.347</code></pre>
+<p>The Text-to-Token Ratio of Nixon’s 1969 speech is 0.298, while the Text-to-Token Ratio of his 1973 speech is 0.346. In particular, the formula we used to compute for TTR is as follows:</p>
+<p>TTR = Total Types/ Total Tokens</p>
+<p>We can see that the TTR increased from 1969 to 1973.</p>
+</div>
+<div id="question-1-b" class="section level4">
+<h4>QUESTION 1 B</h4>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>Create a document feature matrix of the two speeches, with no pre-processing other than to remove the punctuation{be sure to check the options on &quot; in R as appropriate. Calculate the cosine similarity between the two documents with quanteda. Report your findings.</li>
+</ol>
+<pre class="r"><code># create a document frequency matrix 
+inaug_nixon_dfm &lt;- dfm(nixon_inaug)
+
+# M &lt;- nfeat(inaug_nixon_dfm)  # number of features = number of types
 # M
 
 # inspect the first few features
@@ -648,20 +659,14 @@ inaug_nixon_dfm[, 1:10]  # 10% sparse</code></pre>
 ## docs         johnson
 ##   1969-Nixon       1
 ##   1973-Nixon       0</code></pre>
-<pre class="r"><code># how many rows does this dfm have? 
+<pre class="r"><code># Print out dimensions of dfm and see how many rows are present 
 dim(inaug_nixon_dfm)</code></pre>
 <pre><code>## [1]   2 992</code></pre>
-<pre class="r"><code># top features in dfm
+<pre class="r"><code># top features in dfm without removing punctuation
 topfeatures(inaug_nixon_dfm)</code></pre>
 <pre><code>##   , the   .  of  to  in  we and our   - 
 ## 230 219 174 162 134 119 112  89  79  76</code></pre>
-<pre class="r"><code># Are all of these features relevant?
-# Words?
-# Punctuation (maybe!!! --&gt; think what the goal is. Can theory help?)
-
-?dfm  
-
-# remove punctuation
+<pre class="r"><code># remove punctuation
 
 # NOTE: lowercase argument is by default TRUE
 # punctuation
@@ -682,6 +687,8 @@ inaug_nixon_dfm[, 1:20]</code></pre>
 ## docs         community  i ask
 ##   1969-Nixon         1 21   2
 ##   1973-Nixon         1 12   3</code></pre>
+<p>The document feature matrix is shown above, the first one sshpoing the top 10 features when punctuation isn’t removed, and the second showing the top 20 features when the punctuation is removed.</p>
+<p>Next, we’ll calculate cosine similarity using these results.</p>
 <pre class="r"><code># calculate cosine similarity
 
 # 5.1 Cosine similarity--take the dot product of two vectors
@@ -692,15 +699,11 @@ calculate_cosine_similarity &lt;- function(vec1, vec2) {
   return(nominator/denominator)
 }
 
-
-
-# Let&#39;s do it with texts
+# Select texts from each year only.
 nixon_1969_text &lt;- texts(nixon_inaug)[1]
 nixon_1973_text &lt;- texts(nixon_inaug)[2]
-# obama_text &lt;- texts(corpus_subset(data_corpus_inaugural, President == &quot;Obama&quot;))
-# lincoln_text &lt;- texts(corpus_subset(data_corpus_inaugural, President == &quot;Lincoln&quot;))
 
-# Make a dfm of these two
+# Make a dfm of these two text documents
 nixon_all_dfm &lt;- dfm(c(nixon_1969_text, nixon_1973_text), remove = stopwords(&quot;english&quot;), stem = TRUE)
 
 # Calculate similarity
@@ -709,7 +712,7 @@ as.matrix(similarity_nixon_1969_1973_with_preprocessing)</code></pre>
 <pre><code>##            1969-Nixon 1973-Nixon
 ## 1969-Nixon  1.0000000  0.9143316
 ## 1973-Nixon  0.9143316  1.0000000</code></pre>
-<p>Question for leslie: How do I know if I’m on the right track?</p>
+<p>The cosine similarity is shown above, with 0.914, which means that the documents are very similar. This intuitvely makes sense because they were written by the same author (Nixon).</p>
 </div>
 </div>
 <div id="question-2" class="section level3">
