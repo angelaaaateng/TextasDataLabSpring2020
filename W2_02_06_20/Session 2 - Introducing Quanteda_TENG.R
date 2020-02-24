@@ -108,7 +108,7 @@ kwic_america <- kwic(trump_sotu, pattern = "america")
 
 # keep only the text of the the 2018 SOTU
 trump_2018_text <- texts(trump_sotu)[2]
-
+trump_2018_text
 # same as
 trump_2018_text <- trump_sotu[2]
 
