@@ -362,6 +362,16 @@ Take the following two headlines:
 You are allowed to use quanteda to tokenize or create a DFM. Use whatever
 pre-processing of the text you want, but justify your choice. Report your findings.
 
+```{r echo=TRUE}
+# tokenize the texts
+txt <- c(text1 = "Trump Says He's `Not Happy' With Border Deal, but Doesn't Say if He Will Sign It.", 
+         text2 = "Trump `not happy' with border deal, weighing options for building wall.")
+tokens(txt)
+
+tokens(txt, remove_numbers = TRUE,  remove_punct = TRUE)
+
+```
+
 (b) Calculate the Manhattan distance between these sentences by hand. Report your findings.
 
 (c) Calculate the cosine similarity between these sentences by hand. Report your findings.

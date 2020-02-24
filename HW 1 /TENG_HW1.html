@@ -723,7 +723,33 @@ as.matrix(similarity_nixon_1969_1973_with_preprocessing)</code></pre>
 <p>“Trump Says He’s `Not Happy’ With Border Deal, but Doesn’t Say if He Will Sign It.”</p>
 <p>“Trump `not happy’ with border deal, weighing options for building wall.”</p>
 <ol style="list-style-type: lower-alpha">
-<li><p>Calculate the Euclidean distance between these sentences by hand–that is, you can use base R, but you can’t use distance functions from quanteda or similar. You are allowed to use quanteda to tokenize or create a DFM. Use whatever pre-processing of the text you want, but justify your choice. Report your findings.</p></li>
+<li>Calculate the Euclidean distance between these sentences by hand–that is, you can use base R, but you can’t use distance functions from quanteda or similar. You are allowed to use quanteda to tokenize or create a DFM. Use whatever pre-processing of the text you want, but justify your choice. Report your findings.</li>
+</ol>
+<pre class="r"><code># tokenize the texts
+txt &lt;- c(text1 = &quot;Trump Says He&#39;s `Not Happy&#39; With Border Deal, but Doesn&#39;t Say if He Will Sign It.&quot;, 
+         text2 = &quot;Trump `not happy&#39; with border deal, weighing options for building wall.&quot;)
+tokens(txt)</code></pre>
+<pre><code>## tokens from 2 documents.
+## text1 :
+##  [1] &quot;Trump&quot;   &quot;Says&quot;    &quot;He&#39;s&quot;    &quot;`&quot;       &quot;Not&quot;     &quot;Happy&quot;   &quot;&#39;&quot;      
+##  [8] &quot;With&quot;    &quot;Border&quot;  &quot;Deal&quot;    &quot;,&quot;       &quot;but&quot;     &quot;Doesn&#39;t&quot; &quot;Say&quot;    
+## [15] &quot;if&quot;      &quot;He&quot;      &quot;Will&quot;    &quot;Sign&quot;    &quot;It&quot;      &quot;.&quot;      
+## 
+## text2 :
+##  [1] &quot;Trump&quot;    &quot;`&quot;        &quot;not&quot;      &quot;happy&quot;    &quot;&#39;&quot;        &quot;with&quot;    
+##  [7] &quot;border&quot;   &quot;deal&quot;     &quot;,&quot;        &quot;weighing&quot; &quot;options&quot;  &quot;for&quot;     
+## [13] &quot;building&quot; &quot;wall&quot;     &quot;.&quot;</code></pre>
+<pre class="r"><code>tokens(txt, remove_numbers = TRUE,  remove_punct = TRUE)</code></pre>
+<pre><code>## tokens from 2 documents.
+## text1 :
+##  [1] &quot;Trump&quot;   &quot;Says&quot;    &quot;He&#39;s&quot;    &quot;Not&quot;     &quot;Happy&quot;   &quot;With&quot;    &quot;Border&quot; 
+##  [8] &quot;Deal&quot;    &quot;but&quot;     &quot;Doesn&#39;t&quot; &quot;Say&quot;     &quot;if&quot;      &quot;He&quot;      &quot;Will&quot;   
+## [15] &quot;Sign&quot;    &quot;It&quot;     
+## 
+## text2 :
+##  [1] &quot;Trump&quot;    &quot;not&quot;      &quot;happy&quot;    &quot;with&quot;     &quot;border&quot;   &quot;deal&quot;    
+##  [7] &quot;weighing&quot; &quot;options&quot;  &quot;for&quot;      &quot;building&quot; &quot;wall&quot;</code></pre>
+<ol start="2" style="list-style-type: lower-alpha">
 <li><p>Calculate the Manhattan distance between these sentences by hand. Report your findings.</p></li>
 <li><p>Calculate the cosine similarity between these sentences by hand. Report your findings.</p></li>
 </ol>
