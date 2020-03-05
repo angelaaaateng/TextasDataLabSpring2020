@@ -131,7 +131,7 @@ library(pbapply)
 boot_flesch <- function(party_data){
   N <- nrow(party_data)
   bootstrap_sample <- sample_n(party_data, N, replace = TRUE)
-  readability_results <- textstat_readability(bootstrap_sample$texts, measure = "Flesch")
+  readability_results <- textstat_readability(bootstrap_sample$text, measure = "Flesch")
   return(mean(readability_results$Flesch))
 }
 
