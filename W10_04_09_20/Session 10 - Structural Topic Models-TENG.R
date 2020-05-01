@@ -18,7 +18,7 @@ lapply(libraries, require, character.only = T)
 setwd("/Users/lesliehuang/TextasDataLabSpring2020/W10_04_09_20")
 
 # Loading data: Political blogs from the 2008 election on a conservative-liberal dimension
-data(poliblog5k)
+typeof(data(poliblog5k))
 head(poliblog5k.meta)
 head(poliblog5k.voc)
 
